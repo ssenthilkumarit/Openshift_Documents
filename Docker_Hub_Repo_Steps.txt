@@ -1,0 +1,73 @@
+Steps to Push Docker images to Docker Hub:
+
+Docker Account Creation Steps: https://docs.docker.com/docker-id/
+
+PS D:\Senthil\Angular\Docker-Angular> docker login --username=ssenthilkumarit
+Password:
+Login Succeeded
+
+PS D:\Senthil\Angular\Docker-Angular> docker tag restservice:latest ssenthilkumarit/restservice:latest
+
+PS D:\Senthil\Angular\Docker-Angular> docker push ssenthilkumarit/restservice
+Using default tag: latest
+The push refers to repository [docker.io/ssenthilkumarit/restservice]
+762c4d13e269: Pushed
+0fbc35d51f85: Mounted from library/openjdk
+6be21046fcff: Mounted from library/openjdk
+1e5fdc3d671c: Mounted from library/openjdk
+613ab28cf833: Mounted from library/openjdk
+bed676ceab7a: Mounted from library/openjdk
+6398d5cccd2c: Mounted from library/openjdk
+0b0f2f2f5279: Mounted from library/openjdk
+latest: digest: sha256:64c210083e6db632b8a522a5d1483e34827257d39086caa113bc39daa38c006f size: 2007
+
+PS D:\Senthil\Angular\Docker-Angular> docker tag angularapp:latest ssenthilkumarit/angularapp:latest
+
+PS D:\Senthil\Angular\Docker-Angular> docker push ssenthilkumarit/angularapp
+Using default tag: latest
+The push refers to repository [docker.io/ssenthilkumarit/angularapp]
+445061226286: Pushed
+fc54118a9960: Pushed
+ea5abd1f5e23: Pushed
+f1ce6edb9ee9: Pushed
+5f70bf18a086: Pushed
+86b10b5d4a06: Pushed
+7ac403108588: Pushed
+9b437d941848: Pushed
+4371070eefc2: Pushed
+9a5d14f9f550: Pushed
+latest: digest: sha256:5fd1348f842e507d80056fb87b252b018b8f739a5d1a3d14a69a52d39fbcaaef size: 2414
+PS D:\Senthil\Angular\Docker-Angular>
+
+Steps to deploy the docker images to Openshift container:
+
+PS C:\Users\User> oc new-app ssenthilkumarit/welcomeservice --as-deployment-config
+--> Found container image 19c974e (28 minutes old) from Docker Hub for "ssenthilkumarit/welcomeservice"
+
+    * An image stream tag will be created as "welcomeservice:latest" that will track this image
+    * This image will be deployed in deployment config "welcomeservice"
+    * Port 9090/tcp will be load balanced by service "welcomeservice"
+      * Other containers can access this service through the hostname "welcomeservice"
+    * WARNING: Image "ssenthilkumarit/welcomeservice" runs as the 'root' user which may not be permitted by your cluster administrator
+
+--> Creating resources ...
+    imagestream.image.openshift.io "welcomeservice" created
+    deploymentconfig.apps.openshift.io "welcomeservice" created
+    service "welcomeservice" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/welcomeservice'
+    Run 'oc status' to view your app.
+	
+PS C:\Users\User> oc expose service welcomeservice --port=9090
+route.route.openshift.io/welcomeservice exposed
+
+PS C:\Users\User> oc create route passthrough myroute-passthrough --service=welcomeservice --port=9090
+route.route.openshift.io/myroute-passthrough created
+
+PS C:\Users\User> oc create route reencrypt myroute-reencrypt --service=welcomeservice --port=9090
+route.route.openshift.io/myroute-reencrypt created
+
+PS C:\Users\User> oc status
+
+Working URL: http://welcomeservice-ssenthilkumarit-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com/

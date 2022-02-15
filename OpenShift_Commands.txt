@@ -1,0 +1,802 @@
+Sandbox Login:
+https://developers.redhat.com/developer-sandbox
+
+To Get Display Token:
+https://oauth-openshift.apps.sandbox-m2.ll9k.p1.openshiftapps.com/oauth/token/display
+
+https://console-openshift-console.apps.sandbox-m2.ll9k.p1.openshiftapps.com/command-line-tools
+
+$ oc create secret docker-registry docker --docker-server=docker.io --docker-username=<username> --docker-password=<password> --docker-email=<email>
+$ oc secrets link default docker --for=pull
+$ oc new-app <username>/<image> --source-secret=docker
+
+>oc -> after cmdline installation & adding it to env variables path.
+> oc login --token=sha256~cS3i-FLypU4sAo8l96nY27laAsnDehLB7fDJNEtHnZA --server=https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+> oc whoami
+ssenthilkumarit
+
+>oc create secret docker-registry docker --docker-server=docker.io --docker-username=ssenthilkumarit --docker-password=Docker@2022 --docker-email=ssenthilkumarit@gmail.com
+>oc secrets link default docker --for=pull
+
+> oc project
+Using project "ssenthilkumarit-dev" on server "https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443".
+
+> oc projects
+You have access to the following projects and can switch between them with ' project <projectname>':
+
+  * ssenthilkumarit-dev
+    ssenthilkumarit-stage
+
+Using project "ssenthilkumarit-dev" on server "https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443".
+
+> oc explain pods
+KIND:     Pod
+VERSION:  v1
+
+DESCRIPTION:
+     Pod is a collection of containers that can run on a host. This resource is
+     created by clients and scheduled onto hosts.
+	 
+> oc explain pod.spec.containers
+KIND:     Pod
+VERSION:  v1
+
+RESOURCE: containers <[]Object>
+
+DESCRIPTION:
+     List of containers belonging to the pod. Containers cannot currently be
+     added or removed. There must be at least one container in a Pod. Cannot be
+     updated.
+
+     A single application container that you want to run within a pod.
+	 
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+You have no services, deployment configs, or build configs.
+Run 'oc new-app' to create an application.
+
+> oc create -f pods/pod.yaml -> To create new POD
+pod/hello-world-pod created
+
+> oc get pods -> To view the available POD
+NAME              READY   STATUS    RESTARTS   AGE
+hello-world-pod   1/1     Running   0          65s	 
+
+> oc rsh hello-world-pod -> To Shell into a running POD
+~ $ wget localhost:8080
+Connecting to localhost:8080 ([::1]:8080)
+saving to 'index.html'
+index.html           100% |************************************************************************|    31  0:00:00 ETA
+'index.html' saved
+~ $ cat index.html
+Hi! I'm an environment variable~ $ exit
+
+> oc delete pod hello-world-pod -> To delete new POD
+pod "hello-world-pod" deleted
+
+> oc get pods
+No resources found in ssenthilkumarit-dev namespace.
+
+Deployment Configs:
+ Deployment Configs define the template for a pod and manages deploying new images or configuration changes.
+ 
+ Deploying a image:
+ oc new-app quay.io/practicalopenshift/hello-world --as-deployment-config
+ 
+> oc new-app quay.io/practicalopenshift/hello-world --as-deployment-config
+--> Found container image 34b5ac8 (22 months old) from quay.io for "quay.io/practicalopenshift/hello-world"
+
+    * An image stream tag will be created as "hello-world:latest" that will track this image
+    * This image will be deployed in deployment config "hello-world"
+    * Port 8080/tcp will be load balanced by service "hello-world"
+      * Other containers can access this service through the hostname "hello-world"
+
+--> Creating resources ...
+    imagestream.image.openshift.io "hello-world" created
+    deploymentconfig.apps.openshift.io "hello-world" created
+    service "hello-world" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/hello-world'
+    Run 'oc status' to view your app.
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+svc/hello-world - 172.30.186.91:8080
+  dc/hello-world deploys istag/hello-world:latest
+    deployment #1 deployed 2 minutes ago - 1 pod 
+	
+Cleaning Up:
+
+To see the services details
+> oc get svc
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+hello-world   ClusterIP   172.30.186.91   <none>        8080/TCP   8m19s
+
+To see the deploymentconfig details
+> oc get dc
+NAME          REVISION   DESIRED   CURRENT   TRIGGERED BY
+hello-world   1          1         1         config,image(hello-world:latest)	
+
+To see the image stream tag details
+>oc get istag
+NAME                 IMAGE REFERENCE                                                                                                  UPDATED
+hello-world:latest   quay.io/practicalopenshift/hello-world@sha256:2311b7a279608de9547454d1548e2de7e37e981b6f84173f2f452854d81d1b7e   10 minutes ago
+
+To delete the services/dc/istag:
+
+> oc delete svc/hello-world
+service "hello-world" deleted
+
+> oc get svc
+No resources found in ssenthilkumarit-dev namespace.
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+dc/hello-world deploys istag/hello-world:latest
+  deployment #1 deployed 13 minutes ago - 1 pod
+
+
+2 infos identified, use 'oc status --suggest' to see details.
+
+> oc delete dc/hello-world
+deploymentconfig.apps.openshift.io "hello-world" deleted
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+You have no services, deployment configs, or build configs.
+Run 'oc new-app' to create an application.
+
+Cleaning using Label Selector:
+
+> oc new-app quay.io/practicalopenshift/hello-world --as-deployment-config
+>oc status
+> oc describe dc/hello-world
+Name:           hello-world
+Namespace:      ssenthilkumarit-dev
+Created:        About a minute ago
+Labels:         app=hello-world
+                app.kubernetes.io/component=hello-world
+                app.kubernetes.io/instance=hello-world
+Annotations:    openshift.io/generated-by=OpenShiftNewApp
+Latest Version: 1
+Selector:       deploymentconfig=hello-world
+Replicas:       1
+Triggers:       Config, Image(hello-world@latest, auto=true)
+Strategy:       Rolling
+Template:
+Pod Template:
+  Labels:       deploymentconfig=hello-world
+  Annotations:  openshift.io/generated-by: OpenShiftNewApp
+  Containers:
+   hello-world:
+    Image:              quay.io/practicalopenshift/hello-world@sha256:2311b7a279608de9547454d1548e2de7e37e981b6f84173f2f452854d81d1b7e
+    Port:               8080/TCP
+    Host Port:          0/TCP
+    Environment:        <none>
+    Mounts:             <none>
+  Volumes:              <none>
+
+Deployment #1 (latest):
+        Name:           hello-world-1
+        Created:        about a minute ago
+        Status:         Complete
+        Replicas:       1 current / 1 desired
+        Selector:       deployment=hello-world-1,deploymentconfig=hello-world
+        Labels:         app.kubernetes.io/component=hello-world,app.kubernetes.io/instance=hello-world,app=hello-world,openshift.io/deployment-config.name=hello-world
+        Pods Status:    1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+
+Events:
+  Type          Reason                  Age     From                            Message
+  ----          ------                  ----    ----                            -------
+  Normal        DeploymentCreated       74s     deploymentconfig-controller     Created new replication controller "hello-world-1" for version 1
+  
+> oc delete all -l app=hello-world
+replicationcontroller "hello-world-1" deleted
+service "hello-world" deleted
+deploymentconfig.apps.openshift.io "hello-world" deleted
+imagestream.image.openshift.io "hello-world" deleted
+
+Naming Deployments:
+
+> oc new-app quay.io/practicalopenshift/hello-world --name demo-app --as-deployment-config
+--> Found container image 34b5ac8 (22 months old) from quay.io for "quay.io/practicalopenshift/hello-world"
+
+    * An image stream tag will be created as "demo-app:latest" that will track this image
+    * This image will be deployed in deployment config "demo-app"
+    * Port 8080/tcp will be load balanced by service "demo-app"
+      * Other containers can access this service through the hostname "demo-app"
+
+--> Creating resources ...
+    imagestream.image.openshift.io "demo-app" created
+    deploymentconfig.apps.openshift.io "demo-app" created
+    service "demo-app" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/demo-app'
+    Run 'oc status' to view your app.
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+svc/demo-app - 172.30.156.239:8080
+  dc/demo-app deploys istag/demo-app:latest
+    deployment #1 deployed 57 seconds ago - 1 pod
+2 infos identified, use 'oc status --suggest' to see details.	
+
+> oc describe dc/demo-app
+Name:           demo-app
+Namespace:      ssenthilkumarit-dev
+Created:        About a minute ago
+Labels:         app=demo-app
+                app.kubernetes.io/component=demo-app
+                app.kubernetes.io/instance=demo-app
+Annotations:    openshift.io/generated-by=OpenShiftNewApp
+Latest Version: 1
+Selector:       deploymentconfig=demo-app
+Replicas:       1
+Triggers:       Config, Image(demo-app@latest, auto=true)
+Strategy:       Rolling
+Template:
+Pod Template:
+  Labels:       deploymentconfig=demo-app
+  Annotations:  openshift.io/generated-by: OpenShiftNewApp
+  Containers:
+   demo-app:
+    Image:              quay.io/practicalopenshift/hello-world@sha256:2311b7a279608de9547454d1548e2de7e37e981b6f84173f2f452854d81d1b7e
+    Port:               8080/TCP
+    Host Port:          0/TCP
+    Environment:        <none>
+    Mounts:             <none>
+  Volumes:              <none>
+
+Deployment #1 (latest):
+        Name:           demo-app-1
+        Created:        about a minute ago
+        Status:         Complete
+        Replicas:       1 current / 1 desired
+        Selector:       deployment=demo-app-1,deploymentconfig=demo-app
+        Labels:         app.kubernetes.io/component=demo-app,app.kubernetes.io/instance=demo-app,app=demo-app,openshift.io/deployment-config.name=demo-app
+        Pods Status:    1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+
+Events:
+  Type          Reason                  Age     From                            Message
+  ----          ------                  ----    ----                            -------
+  Normal        DeploymentCreated       111s    deploymentconfig-controller     Created new replication controller "demo-app-1" for version 1
+  
+To run the same application with another name.
+
+> oc new-app quay.io/practicalopenshift/hello-world --name demo-app-2 --as-deployment-config
+--> Found container image 34b5ac8 (22 months old) from quay.io for "quay.io/practicalopenshift/hello-world"
+
+    * An image stream tag will be created as "demo-app-2:latest" that will track this image
+    * This image will be deployed in deployment config "demo-app-2"
+    * Port 8080/tcp will be load balanced by service "demo-app-2"
+      * Other containers can access this service through the hostname "demo-app-2"
+
+--> Creating resources ...
+    imagestream.image.openshift.io "demo-app-2" created
+    deploymentconfig.apps.openshift.io "demo-app-2" created
+    service "demo-app-2" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/demo-app-2'
+    Run 'oc status' to view your app.
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+svc/demo-app - 172.30.156.239:8080
+  dc/demo-app deploys istag/demo-app:latest
+    deployment #1 deployed 6 minutes ago - 1 pod
+
+svc/demo-app-2 - 172.30.138.7:8080
+  dc/demo-app-2 deploys istag/demo-app-2:latest
+    deployment #1 deployed 11 seconds ago - 1 pod
+4 infos identified, use 'oc status --suggest' to see details.
+
+> oc delete all -l app=demo-app
+replicationcontroller "demo-app-1" deleted
+service "demo-app" deleted
+deploymentconfig.apps.openshift.io "demo-app" deleted
+imagestream.image.openshift.io "demo-app" deleted
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+svc/demo-app-2 - 172.30.138.7:8080
+  dc/demo-app-2 deploys istag/demo-app-2:latest
+    deployment #1 deployed 2 minutes ago - 1 pod
+	
+Deploy Application from Git:
+	
+> oc new-app "https://gitlab.com/practical-openshift/hello-world.git" --as-deployment-config
+--> Found container image 193418a (2 days old) from Docker Hub for "golang:alpine"
+
+    * An image stream tag will be created as "golang:alpine" that will track the source image
+    * A Docker build using source code from https://gitlab.com/practical-openshift/hello-world.git will be created
+      * The resulting image will be pushed to image stream tag "hello-world:latest"
+      * Every time "golang:alpine" changes a new build will be triggered
+    * This image will be deployed in deployment config "hello-world"
+    * Port 8080/tcp will be load balanced by service "hello-world"
+      * Other containers can access this service through the hostname "hello-world"
+    * WARNING: Image "golang:alpine" runs as the 'root' user which may not be permitted by your cluster administrator
+
+--> Creating resources ...
+    imagestream.image.openshift.io "golang" created
+    imagestream.image.openshift.io "hello-world" created
+    buildconfig.build.openshift.io "hello-world" created
+    deploymentconfig.apps.openshift.io "hello-world" created
+    service "hello-world" created
+--> Success
+    Build scheduled, use 'oc logs -f buildconfig/hello-world' to track its progress.
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/hello-world'
+    Run 'oc status' to view your app.
+	
+> oc logs -f buildconfig/hello-world
+Cloning "https://gitlab.com/practical-openshift/hello-world.git" ...
+        Commit: 31f6313bd1b40353f70c8b8eab8caf7d181754f7 (Update Dockerfile to Alpine)
+        Author: Practical OpenShift <practical-cloud-training@protonmail.com>
+        Date:   Mon Apr 6 08:01:02 2020 -0500
+Replaced Dockerfile FROM image golang:alpine
+time="2022-02-13T08:32:23Z" level=info msg="Not using native diff for overlay, this may cause degraded performance for building images: kernel has CONFIG_OVERLAY_FS_REDIRECT_DIR enabled"
+I0213 08:32:23.384600       1 defaults.go:102] Defaulting to storage driver "overlay" with options [mountopt=metacopy=on].
+Caching blobs under "/var/cache/blobs".
+
+Pulling image golang@sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074 ...
+Trying to pull docker.io/library/golang@sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074...
+time="2022-02-13T08:32:53Z" level=warning msg="failed, retrying in 1s ... (1/3). Error: initializing source docker://golang@sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074: reading manifest sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074 in docker.io/library/golang: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit"
+time="2022-02-13T08:33:25Z" level=warning msg="failed, retrying in 2s ... (2/3). Error: initializing source docker://golang@sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074: reading manifest sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074 in docker.io/library/golang: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit"
+time="2022-02-13T08:33:57Z" level=warning msg="failed, retrying in 4s ... (3/3). Error: initializing source docker://golang@sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074: reading manifest sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074 in docker.io/library/golang: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit"
+Getting image source signatures
+Copying blob sha256:666ba61612fd7c93393f9a5bc1751d8a9929e32d51501dba691da9e8232bc87b
+Copying blob sha256:59bf1c3509f33515622619af21ed55bbe26d24913cedbca106468a5fb37a50c3
+Copying blob sha256:b5d6e1be9cf8d1f919eb3c151527578a335fb7cb665ab341dc94d73838675686
+Copying blob sha256:8ed8ca4862056a130f714accb3538decfa0663fec84e635d8b5a0a3305353dee
+Copying blob sha256:53fed53c8f50e893da46c90f3f0ddd42390a18a325ff130e71eef790aae2d1b7
+Copying config sha256:193418aa43219b3f1294805d57b40064a529239ff05d76617453c78c1fc30ebf
+Writing manifest to image destination
+Storing signatures
+Adding transient rw bind mount for /run/secrets/rhsm
+STEP 1/11: FROM golang@sha256:1dc6a836407ef26c761af27bd39eb86ec385bab0f89a6c969bb1a04b342f7074
+STEP 2/11: ADD src/hello-world.go hello-world.go
+time="2022-02-13T08:34:46Z" level=warning msg="Adding metacopy option, configured globally"
+--> 384f3bedca9
+STEP 3/11: ENV MESSAGE "Welcome! You can change this message by replacing the MESSAGE environment variable."
+--> 7a9bf21521e
+STEP 4/11: ENV HOME /go
+--> 8831123edf0
+STEP 5/11: RUN chgrp -R 0 /go && chmod -R g+rwX /go
+time="2022-02-13T08:34:48Z" level=warning msg="Adding metacopy option, configured globally"
+--> c8d9e8f72f4
+STEP 6/11: EXPOSE 8080
+--> deb592e1418
+STEP 7/11: LABEL io.openshift.expose-services 8080/http
+--> bd1c3aae9d1
+STEP 8/11: USER 1001
+--> b477809d50d
+STEP 9/11: CMD go run hello-world.go
+--> 0c05caf99fe
+STEP 10/11: ENV "OPENSHIFT_BUILD_NAME"="hello-world-1" "OPENSHIFT_BUILD_NAMESPACE"="ssenthilkumarit-dev" "OPENSHIFT_BUILD_SOURCE"="https://gitlab.com/practical-openshift/hello-world.git" "OPENSHIFT_BUILD_COMMIT"="31f6313bd1b40353f70c8b8eab8caf7d181754f7"
+--> c4c453d9604
+STEP 11/11: LABEL "io.openshift.build.commit.author"="Practical OpenShift <practical-cloud-training@protonmail.com>" "io.openshift.build.commit.date"="Mon Apr 6 08:01:02 2020 -0500" "io.openshift.build.commit.id"="31f6313bd1b40353f70c8b8eab8caf7d181754f7" "io.openshift.build.commit.message"="Update Dockerfile to Alpine" "io.openshift.build.commit.ref"="master" "io.openshift.build.name"="hello-world-1" "io.openshift.build.namespace"="ssenthilkumarit-dev" "io.openshift.build.source-location"="https://gitlab.com/practical-openshift/hello-world.git"
+COMMIT temp.builder.openshift.io/ssenthilkumarit-dev/hello-world-1:fe7b9df3
+--> 22125c797f4
+Successfully tagged temp.builder.openshift.io/ssenthilkumarit-dev/hello-world-1:fe7b9df3
+22125c797f46fd6e775fc26ddd757e9267be6d461dce4c0cc4756e092c42a66b
+
+Pushing image image-registry.openshift-image-registry.svc:5000/ssenthilkumarit-dev/hello-world:latest ...
+Getting image source signatures
+Copying blob sha256:8ed8ca4862056a130f714accb3538decfa0663fec84e635d8b5a0a3305353dee
+Copying blob sha256:b5d6e1be9cf8d1f919eb3c151527578a335fb7cb665ab341dc94d73838675686
+Copying blob sha256:53fed53c8f50e893da46c90f3f0ddd42390a18a325ff130e71eef790aae2d1b7
+Copying blob sha256:666ba61612fd7c93393f9a5bc1751d8a9929e32d51501dba691da9e8232bc87b
+Copying blob sha256:8fb6b62ca59054af902b2b53f9b7eba0933e0fa10017ba630342829cadd0948a
+Copying blob sha256:59bf1c3509f33515622619af21ed55bbe26d24913cedbca106468a5fb37a50c3
+Copying blob sha256:1d4530112b8cbec5009accca4e8051333f2faf8d5bb2688d1901fc13c18ed6ec
+Copying config sha256:22125c797f46fd6e775fc26ddd757e9267be6d461dce4c0cc4756e092c42a66b
+Writing manifest to image destination
+Storing signatures
+Successfully pushed image-registry.openshift-image-registry.svc:5000/ssenthilkumarit-dev/hello-world@sha256:63dc0eb836d9574fb0bde11de8573ee348ad22783cad527ab0f3fdfcf87695b7
+Push successful
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+svc/hello-world - 172.30.35.29:8080
+  dc/hello-world deploys istag/hello-world:latest <-
+    bc/hello-world docker builds https://gitlab.com/practical-openshift/hello-world.git on istag/golang:alpine
+    deployment #1 deployed 9 hours ago - 1 pod
+	
+> oc get pods
+NAME                   READY   STATUS      RESTARTS   AGE
+hello-world-1-build    0/1     Completed   0          8h
+hello-world-1-deploy   0/1     Completed   0          8h
+hello-world-1-jm6l4    1/1     Running     0          8h	
+
+> oc delete all -l app=hello-world
+replicationcontroller "hello-world-1" deleted
+service "hello-world" deleted
+deploymentconfig.apps.openshift.io "hello-world" deleted
+buildconfig.build.openshift.io "hello-world" deleted
+imagestream.image.openshift.io "golang" deleted
+imagestream.image.openshift.io "hello-world" deleted
+
+*********************************** rest service *********************
+
+PS C:\Users\User> oc new-app ssenthilkumarit/restservice --as-deployment-config
+--> Found container image 07735dc (13 days old) from Docker Hub for "ssenthilkumarit/restservice"
+
+    * An image stream tag will be created as "restservice:latest" that will track this image
+    * This image will be deployed in deployment config "restservice"
+    * Port 9080/tcp will be load balanced by service "restservice"
+      * Other containers can access this service through the hostname "restservice"
+    * WARNING: Image "ssenthilkumarit/restservice" runs as the 'root' user which may not be permitted by your cluster administrator
+
+--> Creating resources ...
+    imagestream.image.openshift.io "restservice" created
+    deploymentconfig.apps.openshift.io "restservice" created
+    service "restservice" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/restservice'
+    Run 'oc status' to view your app.
+PS C:\Users\User> oc rsh restservice
+error: You must be logged in to the server (Unauthorized)
+PS C:\Users\User> oc rsh restservice-1-9qcjj
+error: You must be logged in to the server (Unauthorized)
+PS C:\Users\User> oc expose service/restservice
+error: You must be logged in to the server (Unauthorized)
+
+> oc login --token=sha256~jmqX51cFuCh5bnpAfzjZyMD9RM2yCpT_hu5EOLRhKiM --server=https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+Logged into "https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443" as "ssenthilkumarit" using the token provided.
+
+You have access to the following projects and can switch between them with 'oc project <projectname>':
+
+  * ssenthilkumarit-dev
+    ssenthilkumarit-stage
+
+Using project "ssenthilkumarit-dev".
+
+> oc expose service/restservice
+route.route.openshift.io/restservice exposed
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+http://restservice-ssenthilkumarit-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com to pod port 9080-tcp (svc/restservice)
+  dc/restservice deploys istag/restservice:latest
+    deployment #1 deployed 23 minutes ago - 1 pod
+
+> oc get -o yaml dc/restservice
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: "2022-02-13T18:18:39Z"
+  generation: 2
+  labels:
+    app: restservice
+    app.kubernetes.io/component: restservice
+    app.kubernetes.io/instance: restservice
+  name: restservice
+  namespace: ssenthilkumarit-dev
+  resourceVersion: "652901945"
+  uid: aff8c63e-a08d-4540-9deb-3b2721910065
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    deploymentconfig: restservice
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        deploymentconfig: restservice
+    spec:
+      containers:
+      - image: ssenthilkumarit/restservice@sha256:64c210083e6db632b8a522a5d1483e34827257d39086caa113bc39daa38c006f
+        imagePullPolicy: Always
+        name: restservice
+        ports:
+        - containerPort: 9080
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - restservice
+      from:
+        kind: ImageStreamTag
+        name: restservice:latest
+        namespace: ssenthilkumarit-dev
+      lastTriggeredImage: ssenthilkumarit/restservice@sha256:64c210083e6db632b8a522a5d1483e34827257d39086caa113bc39daa38c006f
+    type: ImageChange
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-02-13T18:18:50Z"
+    lastUpdateTime: "2022-02-13T18:18:50Z"
+    message: Deployment config has minimum availability.
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2022-02-13T18:18:51Z"
+    lastUpdateTime: "2022-02-13T18:18:51Z"
+    message: replication controller "restservice-1" successfully rolled out
+    reason: NewReplicationControllerAvailable
+    status: "True"
+    type: Progressing
+  details:
+    causes:
+    - type: ConfigChange
+    message: config change
+  latestVersion: 1
+  observedGeneration: 2
+  readyReplicas: 1
+  replicas: 1
+  unavailableReplicas: 0
+  updatedReplicas: 1
+
+> oc get rc -> Replication Controllers
+NAME            DESIRED   CURRENT   READY   AGE
+restservice-1   1         1         1       34m
+
+> oc rollout latest dc/restservice
+deploymentconfig.apps.openshift.io/restservice rolled out
+
+r> oc get pods --watch
+NAME                   READY   STATUS      RESTARTS   AGE
+restservice-1-deploy   0/1     Completed   0          41m
+restservice-2-deploy   0/1     Completed   0          82s
+restservice-2-fm9qp    1/1     Running     0          79s
+restservice-3-deploy   0/1     Pending     0          0s
+restservice-3-deploy   0/1     Pending     0          0s
+restservice-3-deploy   0/1     ContainerCreating   0          0s
+restservice-3-deploy   0/1     ContainerCreating   0          2s
+restservice-3-deploy   1/1     Running             0          3s
+restservice-3-j8kw9    0/1     Pending             0          0s
+restservice-3-j8kw9    0/1     Pending             0          0s
+restservice-3-j8kw9    0/1     ContainerCreating   0          0s
+restservice-3-j8kw9    0/1     ContainerCreating   0          1s
+restservice-3-j8kw9    1/1     Running             0          2s
+restservice-2-fm9qp    1/1     Terminating         0          95s
+restservice-2-fm9qp    0/1     Terminating         0          96s
+restservice-2-fm9qp    0/1     Terminating         0          96s
+restservice-2-fm9qp    0/1     Terminating         0          96s
+restservice-3-deploy   0/1     Completed           0          9s
+
+> oc rollback dc/restservice
+deploymentconfig.apps.openshift.io/restservice deployment #4 rolled back to restservice-2
+Warning: the following images triggers were disabled: restservice:latest
+  You can re-enable them with: oc set triggers dc/restservice --auto
+  
+Services:
+  Creating services and exposing them.
+  
+PS D:\Senthil\Angular\Docker-Angular> cd D:\Senthil\RestService\BankManagementProject
+
+PS D:\Senthil\RestService\BankManagementProject> oc create -f pods/pod.yaml
+pod/rest-service-pod created
+
+PS D:\Senthil\RestService\BankManagementProject> oc expose --port 9080 pod/rest-service-pod
+service/rest-service-pod exposed
+
+PS D:\Senthil\RestService\BankManagementProject> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+svc/rest-service-pod - 172.30.171.136:9080
+  pod/rest-service-pod runs ssenthilkumarit/restservice
+
+View details with 'oc describe <resource>/<name>' or list resources with 'oc get all'.  
+
+PS D:\Senthil\RestService\BankManagementProject> oc rsh rest-service-pod
+$ wget 172.30.171.136:9080/api/customer
+--2022-02-13 19:42:03--  http://172.30.171.136:9080/api/customer
+Connecting to 172.30.171.136:9080... connected.
+HTTP request sent, awaiting response... 200
+Length: unspecified [application/json]
+customer: Permission denied
+
+Exposing a Route:
+
+PS C:\Users\User> oc new-app ssenthilkumarit/restservice --as-deployment-config
+--> Found container image 07735dc (13 days old) from Docker Hub for "ssenthilkumarit/restservice"
+
+    * An image stream tag will be created as "restservice:latest" that will track this image
+    * This image will be deployed in deployment config "restservice"
+    * Port 9080/tcp will be load balanced by service "restservice"
+      * Other containers can access this service through the hostname "restservice"
+    * WARNING: Image "ssenthilkumarit/restservice" runs as the 'root' user which may not be permitted by your cluster administrator
+
+--> Creating resources ...
+    imagestream.image.openshift.io "restservice" created
+    deploymentconfig.apps.openshift.io "restservice" created
+    service "restservice" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/restservice'
+    Run 'oc status' to view your app.
+
+> oc expose service/restservice
+route.route.openshift.io/restservice exposed
+
+> oc status
+In project ssenthilkumarit-dev on server https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443
+
+http://restservice-ssenthilkumarit-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com to pod port 9080-tcp (svc/restservice)
+  dc/restservice deploys istag/restservice:latest
+    deployment #1 deployed 23 minutes ago - 1 pod
+	
+> oc get -o yaml route
+apiVersion: v1
+items:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: "2022-02-13T19:55:39Z"
+    labels:
+      app: restservice
+      app.kubernetes.io/component: restservice
+      app.kubernetes.io/instance: restservice
+    name: restservice
+    namespace: ssenthilkumarit-dev
+    resourceVersion: "653158162"
+    uid: aff9dd9a-db15-4808-b655-476d5c21badd
+  spec:
+    host: restservice-ssenthilkumarit-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com
+    port:
+      targetPort: 9080-tcp
+    to:
+      kind: Service
+      name: restservice
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: "2022-02-13T19:55:39Z"
+        status: "True"
+        type: Admitted
+      host: restservice-ssenthilkumarit-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com
+      routerCanonicalHostname: router-default.apps.sandbox-m2.ll9k.p1.openshiftapps.com
+      routerName: default
+      wildcardPolicy: None
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""	
+  
+Scaling: To increase the replicas.
+
+Manual Scaling:
+> oc describe dc/restservice
+
+> oc describe dc/restservice
+Name:           restservice
+Namespace:      ssenthilkumarit-dev
+Created:        25 minutes ago
+Labels:         app=restservice
+                app.kubernetes.io/component=restservice
+                app.kubernetes.io/instance=restservice
+Annotations:    openshift.io/generated-by=OpenShiftNewApp
+Latest Version: 1
+Selector:       deploymentconfig=restservice
+Replicas:       1
+Triggers:       Config, Image(restservice@latest, auto=true)
+Strategy:       Rolling
+Template:
+Pod Template:
+  Labels:       deploymentconfig=restservice
+  Annotations:  openshift.io/generated-by: OpenShiftNewApp
+  Containers:
+   restservice:
+    Image:              ssenthilkumarit/restservice@sha256:64c210083e6db632b8a522a5d1483e34827257d39086caa113bc39daa38c006f
+    Port:               9080/TCP
+    Host Port:          0/TCP
+    Environment:        <none>
+    Mounts:             <none>
+  Volumes:              <none>
+
+Deployment #1 (latest):
+        Name:           restservice-1
+        Created:        25 minutes ago
+        Status:         Complete
+        Replicas:       1 current / 1 desired
+        Selector:       deployment=restservice-1,deploymentconfig=restservice
+        Labels:         app.kubernetes.io/component=restservice,app.kubernetes.io/instance=restservice,app=restservice,openshift.io/deployment-config.name=restservice
+        Pods Status:    1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+
+Events:
+  Type          Reason                  Age     From                            Message
+  ----          ------                  ----    ----                            -------
+  Normal        DeploymentCreated       25m     deploymentconfig-controller     Created new replication controller "restservice-1" for version 1
+  
+> oc scale dc/restservice --replicas=3
+W0214 01:52:31.235683    1320 warnings.go:70] extensions/v1beta1 Scale is deprecated in v1.2+, unavailable in v1.16+
+deploymentconfig.apps.openshift.io/restservice scaled
+
+> oc describe dc/restservice
+Name:           restservice
+Namespace:      ssenthilkumarit-dev
+Created:        28 minutes ago
+Labels:         app=restservice
+                app.kubernetes.io/component=restservice
+                app.kubernetes.io/instance=restservice
+Annotations:    openshift.io/generated-by=OpenShiftNewApp
+Latest Version: 1
+Selector:       deploymentconfig=restservice
+Replicas:       3
+Triggers:       Config, Image(restservice@latest, auto=true)
+Strategy:       Rolling
+Template:
+Pod Template:
+  Labels:       deploymentconfig=restservice
+  Annotations:  openshift.io/generated-by: OpenShiftNewApp
+  Containers:
+   restservice:
+    Image:              ssenthilkumarit/restservice@sha256:64c210083e6db632b8a522a5d1483e34827257d39086caa113bc39daa38c006f
+    Port:               9080/TCP
+    Host Port:          0/TCP
+    Environment:        <none>
+    Mounts:             <none>
+  Volumes:              <none>
+
+Deployment #1 (latest):
+        Name:           restservice-1
+        Created:        27 minutes ago
+        Status:         Complete
+        Replicas:       3 current / 3 desired
+        Selector:       deployment=restservice-1,deploymentconfig=restservice
+        Labels:         app.kubernetes.io/component=restservice,app.kubernetes.io/instance=restservice,app=restservice,openshift.io/deployment-config.name=restservice
+        Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+
+Events:
+  Type          Reason                          Age     From                            Message
+  ----          ------                          ----    ----                            -------
+  Normal        DeploymentCreated               28m     deploymentconfig-controller     Created new replication controller "restservice-1" for version 1
+  Normal        ReplicationControllerScaled     54s     deploymentconfig-controller     Scaled replication controller "restservice-1" from 1 to 3
+  
+> oc get pods
+NAME                   READY   STATUS      RESTARTS   AGE
+restservice-1-4jcxz    1/1     Running     0          2m54s
+restservice-1-deploy   0/1     Completed   0          30m
+restservice-1-dfdz2    1/1     Running     0          29m
+restservice-1-tqrnx    1/1     Running     0          2m54s  
+
+HorizontalPodAutoScalers: -> 
+Creating AutoScalers:
+>oc autoscale dc/restservice --min 1 --max 10 --cpu-percent=80
+>oc get hpa
+>oc describe hpa/restservice
+>oc get -o yaml hpa/restservice

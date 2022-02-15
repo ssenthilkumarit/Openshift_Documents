@@ -1,0 +1,263 @@
+﻿kind: Pod
+apiVersion: v1
+metadata:
+  generateName: welcomeservice-1-
+  annotations:
+    k8s.v1.cni.cncf.io/network-status: |-
+      [{
+          "name": "openshift-sdn",
+          "interface": "eth0",
+          "ips": [
+              "10.128.4.35"
+          ],
+          "default": true,
+          "dns": {}
+      }]
+    k8s.v1.cni.cncf.io/networks-status: |-
+      [{
+          "name": "openshift-sdn",
+          "interface": "eth0",
+          "ips": [
+              "10.128.4.35"
+          ],
+          "default": true,
+          "dns": {}
+      }]
+    kubernetes.io/limit-ranger: >-
+      LimitRanger plugin set: cpu, memory request for container welcomeservice;
+      cpu, memory limit for container welcomeservice
+    openshift.io/deployment-config.latest-version: '1'
+    openshift.io/deployment-config.name: welcomeservice
+    openshift.io/deployment.name: welcomeservice-1
+    openshift.io/generated-by: OpenShiftNewApp
+    openshift.io/scc: restricted
+  resourceVersion: '658658366'
+  name: welcomeservice-1-vvsm7
+  uid: 392a7c9d-a19c-486e-9475-11457e856753
+  creationTimestamp: '2022-02-15T06:31:41Z'
+  managedFields:
+    - manager: kube-controller-manager
+      operation: Update
+      apiVersion: v1
+      time: '2022-02-15T06:31:41Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:openshift.io/deployment-config.latest-version': {}
+            'f:openshift.io/deployment-config.name': {}
+            'f:openshift.io/deployment.name': {}
+            'f:openshift.io/generated-by': {}
+          'f:generateName': {}
+          'f:labels':
+            .: {}
+            'f:deployment': {}
+            'f:deploymentconfig': {}
+          'f:ownerReferences':
+            .: {}
+            'k:{"uid":"e4757b05-827b-4493-8ebb-91d5162b5b82"}': {}
+        'f:spec':
+          'f:containers':
+            'k:{"name":"welcomeservice"}':
+              .: {}
+              'f:image': {}
+              'f:imagePullPolicy': {}
+              'f:name': {}
+              'f:ports':
+                .: {}
+                'k:{"containerPort":9090,"protocol":"TCP"}':
+                  .: {}
+                  'f:containerPort': {}
+                  'f:protocol': {}
+              'f:resources': {}
+              'f:terminationMessagePath': {}
+              'f:terminationMessagePolicy': {}
+          'f:dnsPolicy': {}
+          'f:enableServiceLinks': {}
+          'f:restartPolicy': {}
+          'f:schedulerName': {}
+          'f:securityContext': {}
+          'f:terminationGracePeriodSeconds': {}
+    - manager: multus
+      operation: Update
+      apiVersion: v1
+      time: '2022-02-15T06:31:44Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:k8s.v1.cni.cncf.io/network-status': {}
+            'f:k8s.v1.cni.cncf.io/networks-status': {}
+      subresource: status
+    - manager: kubelet
+      operation: Update
+      apiVersion: v1
+      time: '2022-02-15T06:31:45Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          'f:conditions':
+            'k:{"type":"ContainersReady"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+            'k:{"type":"Initialized"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+            'k:{"type":"Ready"}':
+              .: {}
+              'f:lastProbeTime': {}
+              'f:lastTransitionTime': {}
+              'f:status': {}
+              'f:type': {}
+          'f:containerStatuses': {}
+          'f:hostIP': {}
+          'f:phase': {}
+          'f:podIP': {}
+          'f:podIPs':
+            .: {}
+            'k:{"ip":"10.128.4.35"}':
+              .: {}
+              'f:ip': {}
+          'f:startTime': {}
+      subresource: status
+  namespace: ssenthilkumarit-dev
+  ownerReferences:
+    - apiVersion: v1
+      kind: ReplicationController
+      name: welcomeservice-1
+      uid: e4757b05-827b-4493-8ebb-91d5162b5b82
+      controller: true
+      blockOwnerDeletion: true
+  labels:
+    deployment: welcomeservice-1
+    deploymentconfig: welcomeservice
+spec:
+  restartPolicy: Always
+  serviceAccountName: default
+  imagePullSecrets:
+    - name: default-dockercfg-vd65v
+    - name: docker
+  priority: -3
+  schedulerName: default-scheduler
+  enableServiceLinks: true
+  terminationGracePeriodSeconds: 30
+  preemptionPolicy: PreemptLowerPriority
+  nodeName: ip-10-0-147-78.us-east-2.compute.internal
+  securityContext:
+    seLinuxOptions:
+      level: 's0:c179,c9'
+    fsGroup: 1031880000
+  containers:
+    - resources:
+        limits:
+          cpu: '1'
+          memory: 750Mi
+        requests:
+          cpu: 10m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      name: welcomeservice
+      securityContext:
+        capabilities:
+          drop:
+            - KILL
+            - MKNOD
+            - SETGID
+            - SETUID
+        runAsUser: 1031880000
+      ports:
+        - containerPort: 9090
+          protocol: TCP
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: kube-api-access-hxqc8
+          readOnly: true
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePolicy: File
+      image: >-
+        ssenthilkumarit/welcomeservice@sha256:6d978f9ef4b1d9c86a93b7e78ab283f81ec412273ea794b7df938475e6c5a822
+  serviceAccount: default
+  volumes:
+    - name: kube-api-access-hxqc8
+      projected:
+        sources:
+          - serviceAccountToken:
+              expirationSeconds: 3607
+              path: token
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+          - downwardAPI:
+              items:
+                - path: namespace
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+          - configMap:
+              name: openshift-service-ca.crt
+              items:
+                - key: service-ca.crt
+                  path: service-ca.crt
+        defaultMode: 420
+  dnsPolicy: ClusterFirst
+  tolerations:
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  priorityClassName: sandbox-users-pods
+status:
+  phase: Running
+  conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2022-02-15T06:31:41Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2022-02-15T06:31:45Z'
+    - type: ContainersReady
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2022-02-15T06:31:45Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2022-02-15T06:31:41Z'
+  hostIP: 10.0.147.78
+  podIP: 10.128.4.35
+  podIPs:
+    - ip: 10.128.4.35
+  startTime: '2022-02-15T06:31:41Z'
+  containerStatuses:
+    - restartCount: 0
+      started: true
+      ready: true
+      name: welcomeservice
+      state:
+        running:
+          startedAt: '2022-02-15T06:31:45Z'
+      imageID: >-
+        docker.io/ssenthilkumarit/welcomeservice@sha256:6d978f9ef4b1d9c86a93b7e78ab283f81ec412273ea794b7df938475e6c5a822
+      image: >-
+        docker.io/ssenthilkumarit/welcomeservice@sha256:6d978f9ef4b1d9c86a93b7e78ab283f81ec412273ea794b7df938475e6c5a822
+      lastState: {}
+      containerID: 'cri-o://bde327e7476474e1ffc21b40f71f0ad6f84038bf7a91983721ae236cfc42ce0b'
+  qosClass: Burstable
