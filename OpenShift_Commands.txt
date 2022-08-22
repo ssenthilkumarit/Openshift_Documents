@@ -16,7 +16,7 @@ $ oc new-app <username>/<image> --source-secret=docker
 > oc whoami
 ssenthilkumarit
 
->oc create secret docker-registry docker --docker-server=docker.io --docker-username=ssenthilkumarit --docker-password=Docker@2022 --docker-email=ssenthilkumarit@gmail.com
+>oc create secret docker-registry docker --docker-server=docker.io --docker-username=ssenthilkumarit --docker-password=*********** --docker-email=ssenthilkumarit@gmail.com
 >oc secrets link default docker --for=pull
 
 > oc project
